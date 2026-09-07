@@ -43,8 +43,26 @@ func main() {
 		}
 
 		if pilihan == 0 {
-			fmt.Println("\nTerima kasih! Program selesai.")
-			break
+			fmt.Println("\nApakah anda yakin ingin Keluar? (1:Ya , 0: Tidak)")
+			if !scanner.Scan() {
+				break
+			}
+
+			konfirmasiStr := strings.TrimSpace(scanner.Text())
+			konfirmasi, err := strconv.Atoi(konfirmasiStr)
+
+			if err != nil || (konfirmasi != 0 && konfirmasi != 1) {
+				fmt.Println("Pilihan konfirmasi tidak valid! kembali ke menu utam")
+				continue
+			}
+
+			if konfirmasi == 1 {
+				fmt.Println("\nTerimkasih! Program selesai")
+				break
+			} else {
+				fmt.Println("Batal Keluar! Kembali ke menu utama")
+				continue
+			}
 		}
 
 		switch pilihan {
