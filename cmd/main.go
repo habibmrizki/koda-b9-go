@@ -7,18 +7,18 @@ import (
 	"strconv"
 	"strings"
 
-	deferandpanic "github.com/habibmrizki/koda-b9-go/internal/deferandPanic"
-	"github.com/habibmrizki/koda-b9-go/internal/interfaceslaso"
+	"github.com/habibmrizki/koda-b9-go/internal/filereader"
 	"github.com/habibmrizki/koda-b9-go/internal/jendela"
 	"github.com/habibmrizki/koda-b9-go/internal/model"
-	persegipanjang "github.com/habibmrizki/koda-b9-go/internal/persegiPanjang"
+	"github.com/habibmrizki/koda-b9-go/internal/payment"
+	"github.com/habibmrizki/koda-b9-go/internal/persegipanjang"
 	"github.com/habibmrizki/koda-b9-go/internal/person"
 	"github.com/habibmrizki/koda-b9-go/internal/slice"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	fiktif := &interfaceslaso.Fiktif{}
+	fiktif := &payment.Fiktif{}
 
 	for {
 		fmt.Println("\n==========================================")
@@ -151,7 +151,7 @@ func main() {
 				continue
 			}
 
-			deferandpanic.ReadFile([]byte(path))
+			filereader.ReadFile([]byte(path))
 
 		case 6:
 			fmt.Println("\n--- Person Method (Input User) ---")
@@ -198,7 +198,7 @@ func main() {
 			scanner.Scan()
 			metodePilihan := strings.TrimSpace(scanner.Text())
 
-			var method interfaceslaso.PaymentMethod
+			var method payment.PaymentMethod
 			switch metodePilihan {
 			case "1":
 				fmt.Print("Masukkan Nama Bank (misal: BCA, Mandiri, BRI): ")
@@ -207,7 +207,7 @@ func main() {
 				if namaBank == "" {
 					namaBank = "BCA"
 				}
-				method = &interfaceslaso.Bank{Name: namaBank}
+				method = &payment.Bank{Name: namaBank}
 
 			case "2":
 				fmt.Print("Masukkan Nama Online / E-Wallet (misal: GoPay, OVO, Dana): ")
@@ -216,7 +216,7 @@ func main() {
 				if namaOnline == "" {
 					namaOnline = "GoPay"
 				}
-				method = &interfaceslaso.Online{Name: namaOnline}
+				method = &payment.Online{Name: namaOnline}
 
 			case "3":
 				method = fiktif
@@ -246,7 +246,7 @@ func main() {
 			}
 
 			// Panggil fungsi Checkout interface
-			msg, err := interfaceslaso.Checkout(method, amounts)
+			msg, err := payment.Checkout(method, amounts)
 			if err != nil {
 				fmt.Println("Error Pembayaran:", err)
 			} else if msg != "" {

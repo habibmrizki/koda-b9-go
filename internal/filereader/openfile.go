@@ -1,4 +1,4 @@
-package deferandpanic
+package filereader
 
 import (
 	"fmt"
