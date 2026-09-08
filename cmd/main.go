@@ -64,9 +64,7 @@ func main() {
 			}
 
 			if konfirmasi == 1 {
-				fmt.Printf("\n[Laporan Akhir] Total Pembayaran Fiktif: Rp %d\n", fiktif.Total())
-				fmt.Printf("[Laporan Akhir] Riwayat Transaksi Fiktif: %v\n", fiktif.Lists)
-				fmt.Println("Terimkasih! Program selesai")
+				fmt.Println("Terimakasih! program selesai")
 				break
 			} else {
 				fmt.Println("Batal Keluar! Kembali ke menu utama")
@@ -257,7 +255,7 @@ func main() {
 				fmt.Println(">> Sukses! Pembayaran fiktif berhasil dicatat ke dalam slice.")
 			}
 
-			// Tampilkan total pembayaran fiktif yang tersimpan hingga saat ini
+			// total pembayaran fiktif
 			fmt.Printf("\n[Laporan Sistem Fiktif] Total Tersimpan: Rp %d | Riwayat Transaksi: %v\n", fiktif.Total(), fiktif.Lists)
 
 		default:
