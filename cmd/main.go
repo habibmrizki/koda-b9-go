@@ -7,14 +7,18 @@ import (
 	"strconv"
 	"strings"
 
+	deferandpanic "github.com/habibmrizki/koda-b9-go/internal/deferandPanic"
+	"github.com/habibmrizki/koda-b9-go/internal/interfaceslaso"
 	"github.com/habibmrizki/koda-b9-go/internal/jendela"
 	"github.com/habibmrizki/koda-b9-go/internal/model"
 	persegipanjang "github.com/habibmrizki/koda-b9-go/internal/persegiPanjang"
+	"github.com/habibmrizki/koda-b9-go/internal/person"
 	"github.com/habibmrizki/koda-b9-go/internal/slice"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	fiktif := &interfaceslaso.Fiktif{}
 
 	for {
 		fmt.Println("\n==========================================")
@@ -24,9 +28,12 @@ func main() {
 		fmt.Println("2. Buat Pola Jendela Bingkai")
 		fmt.Println("3. Sisip Elemen pada Slice Angka")
 		fmt.Println("4. Tampilkan Data Diri")
+		fmt.Println("5. Buka & Baca File")
+		fmt.Println("6. Method Person")
+		fmt.Println("7. Sistem Checkout Pembayaran (Interface)")
 		fmt.Println("0. Keluar")
 		fmt.Println("==========================================")
-		fmt.Print("Masukkan pilihan menu (0-4): ")
+		fmt.Print("Masukkan pilihan menu (0-7): ")
 
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
@@ -57,7 +64,9 @@ func main() {
 			}
 
 			if konfirmasi == 1 {
-				fmt.Println("\nTerimkasih! Program selesai")
+				fmt.Printf("\n[Laporan Akhir] Total Pembayaran Fiktif: Rp %d\n", fiktif.Total())
+				fmt.Printf("[Laporan Akhir] Riwayat Transaksi Fiktif: %v\n", fiktif.Lists)
+				fmt.Println("Terimkasih! Program selesai")
 				break
 			} else {
 				fmt.Println("Batal Keluar! Kembali ke menu utama")
@@ -109,7 +118,7 @@ func main() {
 
 		case 4:
 			fmt.Println("\n--- Data Diri ---")
-			user := model.Person{
+			user := model.User{
 				Name:        "Habib Muhammad Rizki",
 				Photo:       "habib.jpeg",
 				Email:       "habib@gmail.com",
@@ -134,8 +143,125 @@ func main() {
 				fmt.Printf("Pendidikan %d     : %s - %s\n", i+1, edu.Name, edu.Major)
 			}
 
+		case 5:
+			fmt.Println("\n--- Buka & Baca File ---")
+			fmt.Print("Masukkan path/nama file (misal: go.mod): ")
+			scanner.Scan()
+			path := strings.TrimSpace(scanner.Text())
+			if path == "" {
+				fmt.Println("Path file tidak boleh kosong!")
+				continue
+			}
+
+			deferandpanic.ReadFile([]byte(path))
+
+		case 6:
+			fmt.Println("\n--- Person Method (Input User) ---")
+
+			// Input data person dari user
+			fmt.Print("Masukkan Nama   : ")
+			scanner.Scan()
+			nama := strings.TrimSpace(scanner.Text())
+
+			fmt.Print("Masukkan Alamat : ")
+			scanner.Scan()
+			alamat := strings.TrimSpace(scanner.Text())
+
+			fmt.Print("Masukkan No HP  : ")
+			scanner.Scan()
+			hp := strings.TrimSpace(scanner.Text())
+
+			// Buat objek Person baru
+			p := person.NewPerson(nama, alamat, hp)
+
+			// Panggil method Print & Greet
+			fmt.Println("\n>> Hasil Method Print():")
+			fmt.Println(p.Print())
+
+			fmt.Println("\n>> Hasil Method Greet():")
+			fmt.Println(p.Greet())
+
+			//  method SetName dari input user
+			fmt.Print("\nMasukkan Nama Baru (untuk test SetName): ")
+			scanner.Scan()
+			namaBaru := strings.TrimSpace(scanner.Text())
+
+			p.SetName(namaBaru)
+			fmt.Println(">> Setelah SetName diubah:")
+			fmt.Println(p.Greet())
+
+		case 7:
+			fmt.Println("\n--- Sistem Checkout Pembayaran  ---")
+			fmt.Println("Pilih Metode Pembayaran:")
+			fmt.Println("1. Transfer Bank")
+			fmt.Println("2. Pembayaran Online / E-Wallet")
+			fmt.Println("3. Pembayaran Fiktif")
+			fmt.Print("Pilih metode (1-3): ")
+			scanner.Scan()
+			metodePilihan := strings.TrimSpace(scanner.Text())
+
+			var method interfaceslaso.PaymentMethod
+			switch metodePilihan {
+			case "1":
+				fmt.Print("Masukkan Nama Bank (misal: BCA, Mandiri, BRI): ")
+				scanner.Scan()
+				namaBank := strings.TrimSpace(scanner.Text())
+				if namaBank == "" {
+					namaBank = "BCA"
+				}
+				method = &interfaceslaso.Bank{Name: namaBank}
+
+			case "2":
+				fmt.Print("Masukkan Nama Online / E-Wallet (misal: GoPay, OVO, Dana): ")
+				scanner.Scan()
+				namaOnline := strings.TrimSpace(scanner.Text())
+				if namaOnline == "" {
+					namaOnline = "GoPay"
+				}
+				method = &interfaceslaso.Online{Name: namaOnline}
+
+			case "3":
+				method = fiktif
+
+			default:
+				fmt.Println("Metode pembayaran tidak valid!")
+				continue
+			}
+
+			fmt.Print("Masukkan daftar harga barang (pisahkan dengan koma, misal: 25000,50000): ")
+			scanner.Scan()
+			inputHarga := strings.TrimSpace(scanner.Text())
+			daftarStr := strings.Split(inputHarga, ",")
+			var amounts []int
+
+			for _, s := range daftarStr {
+				val, err := strconv.Atoi(strings.TrimSpace(s))
+				if err != nil {
+					continue
+				}
+				amounts = append(amounts, val)
+			}
+
+			if len(amounts) == 0 {
+				fmt.Println("Daftar harga tidak valid!")
+				continue
+			}
+
+			// Panggil fungsi Checkout interface
+			msg, err := interfaceslaso.Checkout(method, amounts)
+			if err != nil {
+				fmt.Println("Error Pembayaran:", err)
+			} else if msg != "" {
+				fmt.Print(msg)
+			} else {
+				fmt.Println(">> Sukses! Pembayaran fiktif berhasil dicatat ke dalam slice.")
+			}
+
+			// Tampilkan total pembayaran fiktif yang tersimpan hingga saat ini
+			fmt.Printf("\n[Laporan Sistem Fiktif] Total Tersimpan: Rp %d | Riwayat Transaksi: %v\n", fiktif.Total(), fiktif.Lists)
+
 		default:
-			fmt.Println("Pilihan tidak tersedia. Silakan pilih 0-4.")
+			fmt.Println("Pilihan tidak tersedia. Silakan pilih 0-7.")
 		}
 	}
 
