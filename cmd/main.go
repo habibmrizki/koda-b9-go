@@ -6,13 +6,17 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/habibmrizki/koda-b9-go/internal/filereader"
 	"github.com/habibmrizki/koda-b9-go/internal/jendela"
+	"github.com/habibmrizki/koda-b9-go/internal/messaging"
 	"github.com/habibmrizki/koda-b9-go/internal/model"
 	"github.com/habibmrizki/koda-b9-go/internal/payment"
 	"github.com/habibmrizki/koda-b9-go/internal/persegipanjang"
 	"github.com/habibmrizki/koda-b9-go/internal/person"
+	"github.com/habibmrizki/koda-b9-go/internal/routines"
 	"github.com/habibmrizki/koda-b9-go/internal/slice"
 )
 
@@ -31,6 +35,8 @@ func main() {
 		fmt.Println("5. Buka & Baca File")
 		fmt.Println("6. Method Person")
 		fmt.Println("7. Sistem Checkout Pembayaran (Interface)")
+		fmt.Println("8. Jalankan Rutinitas Pagi (Goroutines)")
+		fmt.Println("9. Kirim & Terima Pesan (Channel)")
 		fmt.Println("0. Keluar")
 		fmt.Println("==========================================")
 		fmt.Print("Masukkan pilihan menu (0-7): ")
@@ -257,6 +263,36 @@ func main() {
 
 			// total pembayaran fiktif
 			fmt.Printf("\n[Laporan Sistem Fiktif] Total Tersimpan: Rp %d | Riwayat Transaksi: %v\n", fiktif.Total(), fiktif.Lists)
+
+		case 8:
+			fmt.Println("\n--- Memulai Rutinitas Pagi secara Bersamaan (Concurrent) ---")
+
+			var wg sync.WaitGroup
+
+			wg.Add(4)
+
+			go routines.Mandi(&wg)
+			go routines.BuatKopi(&wg)
+			go routines.MenyiapkanSarapan(&wg)
+			go routines.MerapikanKamar(&wg)
+
+			wg.Wait()
+
+			fmt.Println(">> Semua rutinitas pagi telah selesai!")
+
+		case 9:
+			fmt.Println("\n--- Fitur Perpesanan (Goroutine & Channel) ---")
+			msgChannel := make(chan messaging.Message)
+
+			go messaging.ReceivedMessage(msgChannel)
+
+			messaging.SendMessage(msgChannel, "Habib", "Halo, selamat pagi!")
+			messaging.SendMessage(msgChannel, "Budi", "Pagi juga Habib!")
+			messaging.SendMessage(msgChannel, "Sistem", "Server akan dimatikan dalam 5 menit.")
+
+			time.Sleep(500 * time.Millisecond)
+
+			close(msgChannel)
 
 		default:
 			fmt.Println("Pilihan tidak tersedia. Silakan pilih 0-7.")
